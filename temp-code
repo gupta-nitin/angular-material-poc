@@ -1,18 +1,19 @@
-/* dashboard.component.css */
 .header-cell {
   position: relative;
-}
 
-.options {
-  display: none;
-  position: absolute;
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-}
+  &:hover {
+    .options {
+      display: block;
+    }
+  }
 
-.header-cell:hover .options {
-  display: block;
+  .options {
+    display: none;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+  }
 }
 
 <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
