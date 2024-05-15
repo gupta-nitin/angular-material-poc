@@ -1,3 +1,22 @@
+/* dashboard.component.css */
+.header-cell {
+  position: relative;
+}
+
+.options {
+  display: none;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+.header-cell:hover .options {
+  display: block;
+}
+
+
+
 <!-- dashboard.component.html -->
 <div>
   <h2>Dashboard</h2>
