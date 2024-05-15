@@ -1,5 +1,13 @@
+ dashboard.component.scss */
 .header-cell {
   position: relative;
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 16px; // Adjust padding as needed
+  }
 
   &:hover {
     .options {
@@ -15,6 +23,7 @@
     transform: translateY(-50%);
   }
 }
+
 
 <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
     <!-- Contact Name Column -->
