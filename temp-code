@@ -1,13 +1,78 @@
+import { ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { of } from 'rxjs';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { MaterialCommonModule } from 'src/app/material.module';
+import { HealthCheckDashboardComponent } from './health-check-dashboard.component';
+import { HealthCheckService } from '../services/health-check.service';
+import { RouterTestingModule } from '@angular/router/testing';
 
- ButtonConatinerDivVisible: boolean = false;
+describe('HealthCheckDashboardComponent', () => {
+  let component: HealthCheckDashboardComponent;
+  let fixture: ComponentFixture<HealthCheckDashboardComponent>;
+  let healthCheckServiceSpy: jasmine.SpyObj<HealthCheckService>;
+  let getHealthCheckSummarySpy: jasmine.Spy;
 
+  beforeEach(() => {
+    healthCheckServiceSpy = jasmine.createSpyObj('HealthCheckService', ['getHealthCheckSummary']);
+    getHealthCheckSummarySpy = healthCheckServiceSpy.getHealthCheckSummary.and.returnValue(of(healthCheckSummaries));
 
-toggleButtonConatinerDivVisibility() {
-    this.ButtonConatinerDivVisible = !this.ButtonConatinerDivVisible;
-  }
-  
-  
-  (click) = "toggleButtonConatinerDivVisibility()"
-  
-  *ngIf="ButtonConatinerDivVisible"
-  
+    TestBed.configureTestingModule({
+      declarations: [HealthCheckDashboardComponent],
+      imports: [HttpClientTestingModule, ReactiveFormsModule, FormsModule, MaterialCommonModule, NoopAnimationsModule, RouterTestingModule],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
+      providers: [
+        { provide: HealthCheckService, useValue: healthCheckServiceSpy }
+      ]
+    });
+
+    fixture = TestBed.createComponent(HealthCheckDashboardComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should fetch health check summaries on initialization', fakeAsync(() => {
+    expect(component.dataSource).toBeUndefined();
+    tick();
+    expect(healthCheckServiceSpy.getHealthCheckSummary).toHaveBeenCalled();
+    expect(component.dataSource).toEqual(healthCheckSummaries);
+  }));
+
+  it('should show options for a column', () => {
+    expect(component.showOptionsFor).toBeUndefined();
+    component.showOptions('contractName');
+    expect(component.showOptionsFor).toEqual('contractName');
+  });
+
+  it('should toggle apply/reset buttons', () => {
+    expect(component.showApplyReset).toBeFalsy();
+    component.showHideApplyReset();
+    expect(component.showApplyReset).toBeTruthy();
+    component.showHideApplyReset();
+    expect(component.showApplyReset).toBeFalsy();
+  });
+
+  it('should reset form on submit', () => {
+    component.filterForm.patchValue({
+      sourceSystem: 'Test System',
+      targetSystem: 'Target System'
+    });
+    component.onSubmit();
+    expect(component.filterForm.value).toEqual({
+      sourceSystem: '',
+      targetSystem: ''
+    });
+  });
+
+  it('should not call service if form is invalid', () => {
+    component.filterForm.controls['sourceSystem'].setErrors({ 'required': true });
+    component.onSubmit();
+    expect(healthCheckServiceSpy.getHealthCheckSummary).not.toHaveBeenCalled();
+  });
+});
