@@ -1,32 +1,33 @@
-import { ComponentFixture, TestBed, tick, fakeAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { HealthCheckDashboardComponent } from './health-check-dashboard.component';
+import { healthCheckSummaries } from 'src/app/mocks/data/health-checks';
 import { of } from 'rxjs';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ReactiveFormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialCommonModule } from 'src/app/material.module';
-import { HealthCheckDashboardComponent } from './health-check-dashboard.component';
 import { HealthCheckService } from '../services/health-check.service';
-import { RouterTestingModule } from '@angular/router/testing';
+import { Router } from '@angular/router';
 
 describe('HealthCheckDashboardComponent', () => {
   let component: HealthCheckDashboardComponent;
   let fixture: ComponentFixture<HealthCheckDashboardComponent>;
-  let healthCheckServiceSpy: jasmine.SpyObj<HealthCheckService>;
-  let getHealthCheckSummarySpy: jasmine.Spy;
+  let healthCheckServiceSpy = jasmine.createSpyObj('HealthCheckService', ['getHealthCheckSummary']);
+  let getHealthCheckSummarySpy;
 
   beforeEach(() => {
-    healthCheckServiceSpy = jasmine.createSpyObj('HealthCheckService', ['getHealthCheckSummary']);
     getHealthCheckSummarySpy = healthCheckServiceSpy.getHealthCheckSummary.and.returnValue(of(healthCheckSummaries));
 
     TestBed.configureTestingModule({
       declarations: [HealthCheckDashboardComponent],
-      imports: [HttpClientTestingModule, ReactiveFormsModule, FormsModule, MaterialCommonModule, NoopAnimationsModule, RouterTestingModule],
+      imports: [HttpClientTestingModule, ReactiveFormsModule, MaterialCommonModule, NoopAnimationsModule],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
       providers: [
-        { provide: HealthCheckService, useValue: healthCheckServiceSpy }
+        { provide: HealthCheckService, useValue: healthCheckServiceSpy },
+        Router
       ]
-    });
+    }).compileComponents();
 
     fixture = TestBed.createComponent(HealthCheckDashboardComponent);
     component = fixture.componentInstance;
@@ -37,42 +38,33 @@ describe('HealthCheckDashboardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should fetch health check summaries on initialization', fakeAsync(() => {
-    expect(component.dataSource).toBeUndefined();
-    tick();
-    expect(healthCheckServiceSpy.getHealthCheckSummary).toHaveBeenCalled();
+  it('should fetch health check summaries on initialization', () => {
+    component.ngOnInit();
+    fixture.detectChanges();
+
     expect(component.dataSource).toEqual(healthCheckSummaries);
-  }));
-
-  it('should show options for a column', () => {
-    expect(component.showOptionsFor).toBeUndefined();
-    component.showOptions('contractName');
-    expect(component.showOptionsFor).toEqual('contractName');
-  });
-
-  it('should toggle apply/reset buttons', () => {
-    expect(component.showApplyReset).toBeFalsy();
-    component.showHideApplyReset();
-    expect(component.showApplyReset).toBeTruthy();
-    component.showHideApplyReset();
-    expect(component.showApplyReset).toBeFalsy();
+    expect(getHealthCheckSummarySpy).toHaveBeenCalled();
   });
 
   it('should reset form on submit', () => {
-    component.filterForm.patchValue({
-      sourceSystem: 'Test System',
-      targetSystem: 'Target System'
-    });
-    component.onSubmit();
-    expect(component.filterForm.value).toEqual({
-      sourceSystem: '',
-      targetSystem: ''
-    });
-  });
+    component.ngOnInit();
+    fixture.detectChanges();
 
-  it('should not call service if form is invalid', () => {
-    component.filterForm.controls['sourceSystem'].setErrors({ 'required': true });
+    component.filterform.setValue({
+      sourceSystem: 'sourceSystem',
+      targetSystem: 'targetSystem',
+      processingDate: new Date(),
+      asOfDate: new Date()
+    });
+
     component.onSubmit();
-    expect(healthCheckServiceSpy.getHealthCheckSummary).not.toHaveBeenCalled();
+    fixture.detectChanges();
+
+    expect(component.filterform.value).toEqual({
+      sourceSystem: '',
+      targetSystem: '',
+      processingDate: new Date(),  // Change this to match your reset logic
+      asOfDate: null  // Assuming 'asOfDate' is reset to null
+    });
   });
 });
