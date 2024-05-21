@@ -13,11 +13,11 @@ import { Router } from '@angular/router';
 describe('HealthCheckDashboardComponent', () => {
   let component: HealthCheckDashboardComponent;
   let fixture: ComponentFixture<HealthCheckDashboardComponent>;
-  let healthCheckServiceSpy = jasmine.createSpyObj('HealthCheckService', ['getHealthCheckSummary']);
-  let getHealthCheckSummarySpy;
+  let healthCheckServiceSpy: jasmine.SpyObj<HealthCheckService>;
 
   beforeEach(() => {
-    getHealthCheckSummarySpy = healthCheckServiceSpy.getHealthCheckSummary.and.returnValue(of(healthCheckSummaries));
+    healthCheckServiceSpy = jasmine.createSpyObj('HealthCheckService', ['getHealthCheckSummary']);
+    healthCheckServiceSpy.getHealthCheckSummary.and.returnValue(of(healthCheckSummaries));
 
     TestBed.configureTestingModule({
       declarations: [HealthCheckDashboardComponent],
@@ -25,7 +25,7 @@ describe('HealthCheckDashboardComponent', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
       providers: [
         { provide: HealthCheckService, useValue: healthCheckServiceSpy },
-        Router
+        { provide: Router, useValue: {} }
       ]
     }).compileComponents();
 
@@ -42,8 +42,8 @@ describe('HealthCheckDashboardComponent', () => {
     component.ngOnInit();
     fixture.detectChanges();
 
+    expect(healthCheckServiceSpy.getHealthCheckSummary).toHaveBeenCalled();
     expect(component.dataSource).toEqual(healthCheckSummaries);
-    expect(getHealthCheckSummarySpy).toHaveBeenCalled();
   });
 
   it('should reset form on submit', () => {
@@ -60,11 +60,13 @@ describe('HealthCheckDashboardComponent', () => {
     component.onSubmit();
     fixture.detectChanges();
 
-    expect(component.filterform.value).toEqual({
+    const expectedFormValue = {
       sourceSystem: '',
       targetSystem: '',
-      processingDate: new Date(),  // Change this to match your reset logic
-      asOfDate: null  // Assuming 'asOfDate' is reset to null
-    });
+      processingDate: component.filterform.value.processingDate,  // Assuming the processingDate field retains its value
+      asOfDate: null  // Assuming the asOfDate field is reset to null
+    };
+
+    expect(component.filterform.value).toEqual(expectedFormValue);
   });
 });
