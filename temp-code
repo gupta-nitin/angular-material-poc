@@ -1,185 +1,28 @@
-basic-filter.component.html
-
 <div>
   <form [formGroup]="filterForm" (ngSubmit)="onSubmit()">
-    <div *ngFor="let column of columns">
-      <ng-container *ngIf="column.enableFilter && column.isActive">
-        <div [ngSwitch]="column.type">
-          <mat-form-field *ngSwitchCase="GridColumnType.Text">
-            <mat-label>{{ column.name }}</mat-label>
-            <input matInput [formControlName]="column.id">
-          </mat-form-field>
-          
-          <mat-form-field *ngSwitchCase="GridColumnType.Date">
-            <mat-label>{{ column.name }}</mat-label>
-            <input matInput [matDatepicker]="column.id + 'Picker'" [formControlName]="column.id">
-            <mat-datepicker-toggle matSuffix [for]="column.id + 'Picker'"></mat-datepicker-toggle>
-            <mat-datepicker #{{ column.id + 'Picker' }}></mat-datepicker>
-          </mat-form-field>
+    <div class="filter-row" *ngFor="let row of filteredColumns | slice:0:rowCount; let i = index">
+      <div class="filter-column" *ngFor="let column of row">
+        <ng-container *ngIf="column.enableFilter">
+          <div [ngSwitch]="column.type">
+            <mat-form-field *ngSwitchCase="GridColumnType.Text">
+              <mat-label>{{ column.name }}</mat-label>
+              <input matInput [formControlName]="column.id">
+            </mat-form-field>
+            
+            <mat-form-field *ngSwitchCase="GridColumnType.Date">
+              <mat-label>{{ column.name }}</mat-label>
+              <input matInput [matDatepicker]="column.id + 'Picker'" [formControlName]="column.id">
+              <mat-datepicker-toggle matSuffix [for]="column.id + 'Picker'"></mat-datepicker-toggle>
+              <mat-datepicker #asofDatePicker></mat-datepicker>
+            </mat-form-field>
 
-          <mat-form-field *ngSwitchCase="GridColumnType.Number">
-            <mat-label>{{ column.name }}</mat-label>
-            <input matInput type="number" [formControlName]="column.id">
-          </mat-form-field>
-        </div>
-      </ng-container>
-    </div>
-    <div>
-      <button mat-flat-button type="submit" color="primary">Apply</button>
-      <button mat-stroked-button type="reset" (click)="onReset()">Reset</button>
-    </div>
+            <mat-form-field *ngSwitchCase="GridColumnType.Number">
+              <mat-label>{{ column.name }}</mat-label>
+              <input matInput type="number" [formControlName]="column.id">
+            </mat-form-field>
+          </div>
+        </ng-container>
+      </div>
+    </div>   
   </form>
 </div>
-
-------------------------------------
-
-basic-filter.component.ts
-
-import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
-import { DataGridColumns } from 'src/app/shared/models/grid-interfaces.model';
-import { GridColumnType } from 'src/app/shared/enums/grid-enums';
-
-@Component({
-  selector: 'app-basic-filter',
-  templateUrl: './basic-filter.component.html',
-  styleUrls: ['./basic-filter.component.scss']
-})
-export class BasicFilterComponent implements OnInit {
-  @Input() columns: DataGridColumns[];
-  filterForm: FormGroup;
-  GridColumnType = GridColumnType;
-
-  constructor(private formBuilder: FormBuilder) {}
-
-  ngOnInit(): void {
-    this.initializeForm();
-  }
-
-  initializeForm(): void {
-    const group = {};
-    this.columns.forEach(column => {
-      if (column.enableFilter && column.isActive) {
-        group[column.id] = [''];
-      }
-    });
-    this.filterForm = this.formBuilder.group(group);
-  }
-
-  onSubmit(): void {
-    console.log(this.filterForm.value);
-  }
-
-  onReset(): void {
-    this.filterForm.reset();
-  }
-}
-------------------------------------------
-basic-filter.component.scss
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  mat-form-field {
-    width: 100%;
-  }
-
-  div {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-
-    button {
-      flex: 1;
-    }
-  }
-}
-------------------------------------------------------
-health-check-dashboard.component.ts
-import { Component, OnInit } from '@angular/core';
-import { HealthCheckService } from '../services/health-check.service';
-import { HealthcheckSummary } from '../models/health-check.model';
-import { healthCheckSummaries } from 'src/app/mocks/data/health-checks';
-import { DataGridColumns } from 'src/app/shared/models/grid-interfaces.model';
-import { GridColumnType, GridFilterType } from 'src/app/shared/enums/grid-enums';
-import { SearchCriteria } from 'src/app/shared/models/search-criteria.model';
-
-@Component({
-  selector: 'app-health-check-dashboard',
-  templateUrl: './health-check-dashboard.component.html',
-  styleUrls: ['./health-check-dashboard.component.scss']
-})
-export class HealthCheckDashboardComponent implements OnInit {
-  columnDefs: DataGridColumns[] = [
-    { name: 'Contract Code', id: 'contractCode', width: 100, isActive: true, type: GridColumnType.Text, filterType: GridFilterType.Text, enableFilter: false },
-    { name: 'Source System', id: 'sourcesystem', width: 100, isActive: false, type: GridColumnType.Text, filterType: GridFilterType.Text, enableFilter: true },
-    { name: 'Source DataSet', id: 'sourceDataSet', width: 100, isActive: false, type: GridColumnType.Text, filterType: GridFilterType.Text, enableFilter: false },
-    { name: 'Target System', id: 'targetSystem', width: 100, isActive: false, type: GridColumnType.Text, filterType: GridFilterType.Text, enableFilter: false },
-    { name: 'Target DataSet', id: 'targetDataSet', width: 100, isActive: false, type: GridColumnType.Text, filterType: GridFilterType.Text, enableFilter: false },
-    { name: 'Processing DateTime', id: 'processingDateTime', width: 100, isActive: false, type: GridColumnType.Date, filterType: GridFilterType.Date, enableFilter: true },
-    { name: 'Total Records', id: 'totalRecCount', width: 100, isActive: true, type: GridColumnType.Number, filterType: GridFilterType.Number, enableFilter: false },
-    { name: 'Contract Name', id: 'contractName', width: 100, isActive: true, type: GridColumnType.Text, filterType: GridFilterType.Text, enableFilter: true },
-    { name: 'Error Records', id: 'failureRecCount', width: 100, isActive: true, type: GridColumnType.Number, filterType: GridFilterType.Number, enableFilter: false },
-    { name: 'Success Records', id: 'successRecCount', width: 100, isActive: true, type: GridColumnType.Number, filterType: GridFilterType.Number, enableFilter: false },
-    { name: 'Absolute Error Balance', id: 'absErrorBalance', width: 100, isActive: true, type: GridColumnType.Currency, filterType: GridFilterType.Number, enableFilter: false },
-    { name: 'As of Date', id: 'asofDate', width: 100, isActive: false, type: GridColumnType.Date, filterType: GridFilterType.Date, enableFilter: true }
-  ];
-  dataSource: HealthcheckSummary[] = [];
-  showApplyReset: boolean = false;
-  currentUTCDate: string = new Date().toLocaleDateString('en-US', { timeZone: 'UTC' });
-  defaultFilter: SearchCriteria[] = [{ key: 'processingDateTime', value: this.currentUTCDate, operation: 'eq' }];
-
-  constructor(private healthCheckService: HealthCheckService) { }
-
-  ngOnInit(): void {
-    this.dataSource = healthCheckSummaries;
-  }
-
-  showHideApplyReset() {
-    this.showApplyReset = !this.showApplyReset;
-  }
-
-  search(event) {
-    console.log(JSON.stringify(event));
-  }
-
-  onSubmit() {
-    // Handle form submission
-  }
-}
--------------------------------------------------
-health-check-dashboard.component.html
-
-<div class="column">
-  <div>
-    <h3 class="page-header">Health check Dashboard</h3>
-  </div>
-  <div>
-    <mat-accordion multi displayMode="flat">
-      <mat-expansion-panel togglePosition="before">
-        <mat-expansion-panel-header (click)="showHideApplyReset()">
-          <mat-panel-title>
-            Filters
-          </mat-panel-title>
-          <div class="button-container" *ngIf="showApplyReset">
-            <button mat-flat-button type="submit" color="primary" class="w-100 mr-1">Apply</button>
-            <button mat-stroked-button type="reset" class="w-100 ml-1">Reset</button>
-          </div>
-        </mat-expansion-panel-header>
-        <div class="container row-wrap">
-          <app-basic-filter [columns]="columnDefs"></app-basic-filter>
-        </div>
-      </mat-expansion-panel>
-    </mat-accordion>
-  </div>
-  <div class="pt-2">
-    <app-data-grid [dataSource]="dataSource" [wfTableColumns]="columnDefs" (searchCriteria)="search($event)" [defaultFilter]="defaultFilter"></app-data-grid>
-  </div>
-</div>
-
-
-
-
-
-
