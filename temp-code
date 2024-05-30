@@ -71,3 +71,35 @@ export class BasicFilterComponent implements OnInit {
   }
 }
 
+
+-------
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    .filter-column {
+      flex: 1;
+      min-width: 19%;
+      max-width: 19%;
+    }
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+
+    button {
+      flex: 1;
+    }
+  }
+}
+
+
