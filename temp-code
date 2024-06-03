@@ -1,4 +1,15 @@
 
+.apply-button {
+  order: 1;
+}
+
+/* Reset button order */
+.reset-button {
+  order: 2;
+}
+
+----------------
+
 /* Container styles for the accordion and form */
 .container {
   display: flex;
