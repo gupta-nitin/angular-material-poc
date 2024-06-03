@@ -1,12 +1,4 @@
-onSubmit(event: Event): void {
-    event.stopPropagation();
-    const formValues = this.filterForm.value;
+"field.id + 'Picker'" 
 
-    this.filters = [
-      { key: 'contractName', value: formValues.contractName || '', operation: 'cn' },
-      { key: 'processingDateTime', value: formValues.processingDate || '', operation: 'eq' }
-    ];
 
-    console.log(this.filters);
-    this.searchCriteria.emit(this.filters);
-  }
+#{{field.id + 'Picker'}}
