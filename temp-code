@@ -1,3 +1,3 @@
 <input matInput [matDatepicker]="field.id + 'Picker'" [formControlName]="field.id">
 <mat-datepicker-toggle matSuffix [for]="field.id + 'Picker'"></mat-datepicker-toggle>
-<mat-datepicker #{{field.id + 'Picker'}}></mat-datepicker>
+<mat-datepicker #datePicker></mat-datepicker>
