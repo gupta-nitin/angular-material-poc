@@ -1,57 +1,9 @@
-
-.apply-button {
-  order: 1;
-}
-
-/* Reset button order */
-.reset-button {
-  order: 2;
-}
-
-----------------
-
-/* Container styles for the accordion and form */
-.container {
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-}
-
-/* Styles for the button container */
-.button-container {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px; /* Add space between the buttons */
-  margin-top: 10px; /* Add some space above the buttons */
-}
-
-
-/* Flexbox styling for wrapping and aligning form elements */
-.row-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-/* Button styles */
-button {
-  width: 100px;
-}
-
-/* Styles for the form fields */
-mat-form-field {
-  width: 100%;
-}
-
-
-.w-100 {
-  width: 100%;
-}
-
-.mr-1 {
-  margin-right: 8px;
-}
-
-.ml-1 {
-  margin-left: 8px;
-}
+ onReset(event: Event): void {
+    event.stopPropagation();
+    this.filterForm.patchValue({
+      contractName: '',
+      processingDate: ''
+    });
+    this.filters = [];
+    this.searchCriteria.emit(this.filters);
+  }
