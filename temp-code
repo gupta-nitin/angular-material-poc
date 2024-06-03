@@ -1,9 +1,12 @@
- onReset(event: Event): void {
+onSubmit(event: Event): void {
     event.stopPropagation();
-    this.filterForm.patchValue({
-      contractName: '',
-      processingDate: ''
-    });
-    this.filters = [];
+    const formValues = this.filterForm.value;
+
+    this.filters = [
+      { key: 'contractName', value: formValues.contractName || '', operation: 'cn' },
+      { key: 'processingDateTime', value: formValues.processingDate || '', operation: 'eq' }
+    ];
+
+    console.log(this.filters);
     this.searchCriteria.emit(this.filters);
   }
