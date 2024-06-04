@@ -1,1 +1,20 @@
-ng test --include='**/basic-filter.component.spec.ts'
+this.filters = filterFields.map(def => {
+    const value = formValues[def.id] || '';
+    let operation;
+
+    switch (def.filterType) {
+        case FilterType.Text:
+            operation = 'cn'; // 'cn' for 'contains'
+            break;
+        case FilterType.Date:
+            operation = 'eq'; // 'eq' for 'equals'
+            break;
+        // Add more cases as necessary
+        default:
+            operation = 'eq'; // default to 'equals'
+    }
+
+    return { key: def.id, value, operation };
+});
+
+console.log(this.filters);
