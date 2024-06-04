@@ -1,20 +1,22 @@
-this.filters = filterFields.map(def => {
-    const value = formValues[def.id] || '';
-    let operation;
+/* Container styles for the accordion and form */
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
 
-    switch (def.filterType) {
-        case FilterType.Text:
-            operation = 'cn'; // 'cn' for 'contains'
-            break;
-        case FilterType.Date:
-            operation = 'eq'; // 'eq' for 'equals'
-            break;
-        // Add more cases as necessary
-        default:
-            operation = 'eq'; // default to 'equals'
-    }
+/* Styles for the button container */
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px; /* Add space between the buttons */
+  margin-top: 10px; /* Add some space above the buttons */
+}
 
-    return { key: def.id, value, operation };
-});
 
-console.log(this.filters);
+/* Flexbox styling for wrapping and aligning form elements */
+.row-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
