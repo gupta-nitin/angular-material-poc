@@ -178,6 +178,17 @@ export class DataGridComponent implements OnChanges {
 
   toggleRow(row) {
     row.expanded = !row.expanded;
-    if (row.expanded && !row.inner
+    if (row.expanded && !row.innerData) {
+      this.fetchInnerData(row);
+    }
+  }
 
+  fetchInnerData(row) {
+    // This is just an example. You need to implement actual data fetching logic.
+    row.innerData = [
+      { C1: 'Text1', C2: 123, C3: new Date(), C4: 'Text2' },
+      { C1: 'Text3', C2: 456, C3: new Date(), C4: 'Text4' }
+    ];
+  }
+}
 
