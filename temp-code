@@ -1,194 +1,57 @@
-data-grid.component.html
-<div style="width: 100%; overflow-x: auto;">
-  <table mat-table [dataSource]="matDataSource" matSort #dataTable (matSortChange)="sortData($event)">
-    <ng-container *ngFor="let column of wfTableColumns">
-      <ng-container [matColumnDef]="column.id">
-        <th mat-header-cell *matHeaderCellDef [ngClass]="column.type">
-          <app-wf-drop-down-header
-            [column-id]="column.id"
-            [table-columns]="wfTableColumns"
-            [wf-table-filter]="wfTableFilter"
-            [filter-type]="column.filterType"
-            [server-side-filter]="true"
-            (displayedColumnsChange)="orderHideColumn($event)"
-            (filterValueChange)="filterValueChange($event, column.id, column.filterType)"
-            #headerItems>
-          </app-wf-drop-down-header>
-        </th>
-        <td mat-cell *matCellDef="let element" [ngClass]="column.type" (click)="toggleRow(element)">
-          <span *ngIf="column.type === 'text'">{{ element[column.id] }}</span>
-          <span *ngIf="column.type === 'date'">{{ element[column.id] | date: 'medium' }}</span>
-          <span *ngIf="column.type === 'number'">{{ element[column.id] | number }}</span>
-          <span *ngIf="column.type === 'currency'">{{ element[column.id] | currency }}</span>
-        </td>
-      </ng-container>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+        class="element-row" [class.expanded-element-row]="expandedElement === row"
+        (click)="expandedElement = expandedElement === row ? null : row"></tr>
+    <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row"></tr>
+
+    <!-- Expanded Content Column - Detail Row -->
+    <ng-container matColumnDef="expandedDetail">
+      <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
+        <div class="element-detail" *ngIf="expandedElement === element">
+          <table mat-table [dataSource]="element.marks" class="inner-table">
+            <ng-container matColumnDef="subject">
+              <th mat-header-cell *matHeaderCellDef> Subject </th>
+              <td mat-cell *matCellDef="let mark"> {{mark.subject}} </td>
+            </ng-container>
+            <ng-container matColumnDef="mark">
+              <th mat-header-cell *matHeaderCellDef> Mark </th>
+              <td mat-cell *matCellDef="let mark"> {{mark.mark}} </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="['subject', 'mark']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['subject', 'mark']"></tr>
+          </table>
+        </div>
+      </td>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell" colspan="4">No Records Found!</td>
-    </tr>
+------------------
 
-    <ng-container *ngFor="let row of matDataSource.data">
-      <tr mat-row (click)="toggleRow(row)">
-        <td [attr.colspan]="displayedColumns.length">
-          <mat-accordion *ngIf="row.expanded">
-            <mat-expansion-panel expanded>
-              <mat-expansion-panel-header>
-                <mat-panel-title>Details</mat-panel-title>
-              </mat-expansion-panel-header>
-              <div>
-                <table mat-table [dataSource]="row.innerData">
-                  <ng-container matColumnDef="C1">
-                    <th mat-header-cell *matHeaderCellDef> C1 </th>
-                    <td mat-cell *matCellDef="let element"> {{element.C1}} </td>
-                  </ng-container>
-                  <ng-container matColumnDef="C2">
-                    <th mat-header-cell *matHeaderCellDef> C2 </th>
-                    <td mat-cell *matCellDef="let element"> {{element.C2}} </td>
-                  </ng-container>
-                  <ng-container matColumnDef="C3">
-                    <th mat-header-cell *matHeaderCellDef> C3 </th>
-                    <td mat-cell *matCellDef="let element"> {{element.C3 | date: 'medium'}} </td>
-                  </ng-container>
-                  <ng-container matColumnDef="C4">
-                    <th mat-header-cell *matHeaderCellDef> C4 </th>
-                    <td mat-cell *matCellDef="let element"> {{element.C4}} </td>
-                  </ng-container>
-                  <tr mat-header-row *matHeaderRowDef="['C1', 'C2', 'C3', 'C4']"></tr>
-                  <tr mat-row *matRowDef="let row; columns: ['C1', 'C2', 'C3', 'C4']"></tr>
-                </table>
-              </div>
-            </mat-expansion-panel>
-          </mat-accordion>
-        </td>
-      </tr>
-    </ng-container>
-  </table>
-  <div>
-    <mat-paginator
-      #paginator
-      [length]="totalRecords"
-      [pageSize]="pageSize"
-      [pageIndex]="pageIndex"
-      [pageSizeOptions]="[10, 25, 50, 100]"
-      (page)="pageChange($event)">
-    </mat-paginator>
-  </div>
-</div>
------------------------------------------
-data-grid.component.ts
-
-import { Component, ElementRef, EventEmitter, Input, OnChanges, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource } from '@angular/material/table';
-import { DataGridColumns, PagingResponse } from '../../models/grid-interfaces.model';
-import { FilterCriteria, SearchRequest } from '../../models/search-request.model';
-import { DataType, FilterType, Operation } from '../../enums/grid-enums';
-import { WfDropDownHeaderComponent } from '../uf-drop-down-header/uf-drop-down-header.component';
-import { WfTableFilter } from '@wf/angular-core';
-
-@Component({
-  selector: 'app-data-grid',
-  templateUrl: './data-grid.component.html',
-  styleUrls: ['./data-grid.component.scss']
-})
-export class DataGridComponent implements OnChanges {
-  @Input() wfTableColumns: DataGridColumns[];
-  @Input() dataSource: PagingResponse<any>;
-  @Output() searchCriteria = new EventEmitter<SearchRequest>();
-  searchRequest: SearchRequest;
-  displayedColumns: string[];
-  matDataSource: MatTableDataSource<any[]>;
-  wfTableFilter: WfTableFilter = new WfTableFilter();
-  resultLength: number = 0;
-  sortField: string;
-  sortDir: string;
-  filters: FilterCriteria[] = [];
-  pageSize: number = 1;
-  totalRecords: number = 0;
-  pageIndex: number = 0;
-  @ViewChild('dataTable', { read: ElementRef, static: false }) matTableRef: ElementRef;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
-  @ViewChild('paginator', { static: true }) paginator: MatPaginator;
-  @ViewChildren('headerItems') children: QueryList<WfDropDownHeaderComponent>;
-
-  ngOnChanges(): void {
-    this.displayedColumns = this.wfTableColumns.filter(c => c.isActive).map(c => c.id);
-    this.matDataSource = new MatTableDataSource(this.dataSource?.data);
-    this.totalRecords = this.dataSource?.totalRecords;
-    this.pageIndex = this.dataSource?.currentPage - 1;
-    this.matDataSource.filterPredicate = this.wfTableFilter.createFilterPredicate();
-    this.wfTableFilter.initializeDataSource(this.matDataSource);
-  }
-
-  orderHideColumn(event) {
-    this.displayedColumns = event.filter(c => c.isActive).map(c => c.id);
-  }
-
-  filterValueChange(event, column, filterType) {
-    let searchCriteria: FilterCriteria;
-    switch (filterType) {
-      case FilterType.Number:
-        let numberVal = (!event.lowValue && !event.highValue) ? null : event.lowValue + '|' + event.highValue;
-        searchCriteria = { key: column, value: numberVal, operation: Operation.Between, dataType: DataType.Integer };
-        break;
-      case FilterType.Text:
-        searchCriteria = { key: column, value: event.value, operation: Operation.Contains, dataType: DataType.String };
-        break;
-      case FilterType.Date:
-        let dateVal = (!event.startDate && !event.endDate) ? null : event.startDate.toLocaleDateString('en-US', { timezone: 'UTC' }) + '|' + event.endDate.toLocaleDateString('en-US', { timezone: 'UTC' });
-        searchCriteria = { key: column, value: dateVal, operation: Operation.Between, dataType: DataType.Date };
-        break;
-    }
-    let foundFilter = this.filters.find(f => f.key == searchCriteria.key);
-    if (foundFilter) {
-      foundFilter.operation = searchCriteria.operation;
-      foundFilter.value = searchCriteria.value;
-    } else {
-      this.filters.push(searchCriteria);
-    }
-    this.search();
-  }
-
-  sortData(event) {
-    this.sortField = event.active;
-    this.sortDir = event.direction;
-    this.search();
-  }
-
-  pageChange(event) {
-    this.pageIndex = event.pageIndex;
-    this.pageSize = event.pageSize;
-    this.search();
-  }
-
-  search() {
-    this.searchRequest = {
-      filterCriteria: this.filters,
-      pageNum: this.pageIndex + 1,
-      pageSize: this.pageSize,
-      sortBy: this.sortField,
-      sortDir: this.sortDir
-    };
-    this.searchCriteria.emit(this.searchRequest);
-  }
-
-  toggleRow(row) {
-    row.expanded = !row.expanded;
-    if (row.expanded && !row.innerData) {
-      this.fetchInnerData(row);
-    }
-  }
-
-  fetchInnerData(row) {
-    // This is just an example. You need to implement actual data fetching logic.
-    row.innerData = [
-      { C1: 'Text1', C2: 123, C3: new Date(), C4: 'Text2' },
-      { C1: 'Text3', C2: 456, C3: new Date(), C4: 'Text4' }
-    ];
-  }
+/* Styles for the main table */
+table {
+  width: 100%;
 }
 
+.mat-form-field {
+  width: 100%;
+}
+
+/* Styles for the inner table */
+.inner-table {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.element-row {
+  cursor: pointer;
+}
+
+.detail-row {
+  height: 0;
+}
+
+.element-detail {
+  padding: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
