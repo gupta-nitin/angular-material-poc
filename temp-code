@@ -1,44 +1,20 @@
-.example-element-detail {
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-}
+ <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 
-.detail-content {
-  padding: 16px;
-  background: #f5f5f5;
-  border-left: 4px solid #3f51b5;
-}
----------------------------+
-multiTemplateDataRows
-lass="mat-elevation-z8"
-
-  <!-- Expand Column -->
-  <ng-container matColumnDef="expand">
-    <th mat-header-cell *matHeaderCellDef></th>
-    <td mat-cell *matCellDef="let element">
-      <button mat-icon-button (click)="expandedElement = expandedElement === element ? null : element">
-        <mat-icon>{{expandedElement === element ? 'expand_less' : 'expand_more'}}</mat-icon>
-      </button>
+  <!-- Expanded Content -->
+  <ng-container matColumnDef="expandedDetail">
+    <td mat-cell *matCellDef="let element" [attr.colspan]="displayedColumns.length">
+      <div class="example-element-detail">
+        <div class="detail-content">
+          <!-- Your expandable content here -->
+          <p>Details for {{element.name}}</p>
+          <p>ID: {{element.id}}</p>
+          <p>Age: {{element.age}}</p>
+          <!-- Add more details as needed -->
+        </div>
+      </div>
     </td>
   </ng-container>
 
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row"></tr>
-  <tr mat-row *matRowDef="let row; columns: ['expandedDetail']; when: isExpansionDetailRow" class="detail-row"></tr>
+  <tr mat-row *matRowDef="let row; columns: ['expandedDetail'];"></tr>
 </table>
-
-<!-- Expanded Content -->
-<ng-template #expandedDetail let-element>
-  <td [attr.colspan]="displayedColumns.length">
-    <div class="example-element-detail">
-      <div class="detail-content">
-        <!-- Your expandable content here -->
-        <p>Details for {{element.name}}</p>
-        <p>ID: {{element.id}}</p>
-        <p>Age: {{element.age}}</p>
-        <!-- Add more details as needed -->
-      </div>
-    </div>
-  </td>
-</ng-template>
