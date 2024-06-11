@@ -11,7 +11,7 @@
 }
 ---------------------------+
 multiTemplateDataRows
-
+lass="mat-elevation-z8"
 
   <!-- Expand Column -->
   <ng-container matColumnDef="expand">
