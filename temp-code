@@ -1,3 +1,19 @@
+employee-table.component.css
+.mat-icon {
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.employee-detail-card {
+  padding: 16px;
+  margin: 8px 0;
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+-------------------------------------------------------------
+
 employee-table.component.ts
 
 import { Component } from '@angular/core';
