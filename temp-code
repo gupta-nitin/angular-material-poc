@@ -1,4 +1,5 @@
 employee-table.component.css
+
 /* Style for the icon in the name column */
 .mat-icon {
   cursor: pointer;
@@ -30,6 +31,11 @@ table {
   margin-bottom: 16px;
 }
 
+/* Style for the expanded row */
+.expanded-row {
+  border-top: none;
+}
+
 -------------------------------------------------------------
 
 employee-table.component.ts
@@ -40,7 +46,7 @@ interface Employee {
   name: string;
   age: number;
   salary: number;
-  expanded?: boolean;  // Add an expanded property to manage row state
+  expanded?: boolean;
 }
 
 @Component({
@@ -51,9 +57,9 @@ interface Employee {
 export class EmployeeTableComponent {
   displayedColumns: string[] = ['name', 'age', 'salary'];
   dataSource: Employee[] = [
-    {name: 'John Doe', age: 28, salary: 50000},
-    {name: 'Jane Smith', age: 34, salary: 60000},
-    {name: 'Jim Brown', age: 45, salary: 70000},
+    {name: 'John Doe', age: 28, salary: 50000, expanded: false},
+    {name: 'Jane Smith', age: 34, salary: 60000, expanded: false},
+    {name: 'Jim Brown', age: 45, salary: 70000, expanded: false},
   ];
 
   toggleRow(employee: Employee) {
@@ -61,13 +67,11 @@ export class EmployeeTableComponent {
   }
 }
 
-
-
 ---------------------------------------------------------------------------------
 
 employee-table.component.html
 
-<table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+<table mat-table [dataSource]="dataSource" class="mat-elevation-z8" multiTemplateDataRows>
 
   <!-- Name Column -->
   <ng-container matColumnDef="name">
@@ -90,18 +94,24 @@ employee-table.component.html
     <td mat-cell *matCellDef="let employee"> {{employee.salary}} </td>
   </ng-container>
 
+  <!-- Header Row -->
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <!-- Data Row -->
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  <!-- Expanded Row -->
+  <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" [class.expanded-row]="row.expanded"></tr>
 
-  <!-- Expanded Row Detail -->
-  <tr *ngFor="let employee of dataSource">
-    <td [attr.colspan]="displayedColumns.length" *ngIf="employee.expanded">
-      <div class="employee-detail-card">
-        <p><strong>Name: </strong>{{employee.name}}</p>
-        <p><strong>Age: </strong>{{employee.age}}</p>
-        <p><strong>Salary: </strong>{{employee.salary}}</p>
-      </div>
-    </td>
-  </tr>
 </table>
+
+<!-- Expanded Row Detail Template -->
+<ng-container matColumnDef="expandedDetail">
+  <td mat-cell *matCellDef="let employee" [attr.colspan]="displayedColumns.length">
+    <div class="employee-detail-card" *ngIf="employee.expanded">
+      <p><strong>Name: </strong>{{employee.name}}</p>
+      <p><strong>Age: </strong>{{employee.age}}</p>
+      <p><strong>Salary: </strong>{{employee.salary}}</p>
+    </div>
+  </td>
+</ng-container>
+
 
