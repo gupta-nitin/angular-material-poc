@@ -1,15 +1,33 @@
 employee-table.component.css
+/* Style for the icon in the name column */
 .mat-icon {
   cursor: pointer;
   vertical-align: middle;
+  margin-right: 8px; /* Add some space between the icon and the name */
 }
 
+/* Style for the detailed information card */
 .employee-detail-card {
   padding: 16px;
   margin: 8px 0;
-  background-color: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
+  background-color: #f9f9f9; /* Light gray background */
+  border: 1px solid #e0e0e0; /* Light gray border */
+  border-radius: 4px; /* Rounded corners */
+}
+
+/* Style for the strong text (labels) inside the detail card */
+.employee-detail-card p {
+  margin: 0; /* Remove default paragraph margin */
+  line-height: 1.5; /* Adjust line height for better readability */
+}
+
+.employee-detail-card p strong {
+  font-weight: bold; /* Bold font for labels */
+}
+
+/* Add a little more space at the bottom of the table */
+table {
+  margin-bottom: 16px;
 }
 
 -------------------------------------------------------------
