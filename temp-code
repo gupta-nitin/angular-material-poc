@@ -6,6 +6,7 @@ interface Employee {
   name: string;
   age: number;
   salary: number;
+  expanded?: boolean;  // Add an expanded property to manage row state
 }
 
 @Component({
@@ -20,7 +21,12 @@ export class EmployeeTableComponent {
     {name: 'Jane Smith', age: 34, salary: 60000},
     {name: 'Jim Brown', age: 45, salary: 70000},
   ];
+
+  toggleRow(employee: Employee) {
+    employee.expanded = !employee.expanded;
+  }
 }
+
 
 
 ---------------------------------------------------------------------------------
@@ -32,7 +38,10 @@ employee-table.component.html
   <!-- Name Column -->
   <ng-container matColumnDef="name">
     <th mat-header-cell *matHeaderCellDef> Name </th>
-    <td mat-cell *matCellDef="let employee"> {{employee.name}} </td>
+    <td mat-cell *matCellDef="let employee" (click)="toggleRow(employee)">
+      <mat-icon>{{ employee.expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_right' }}</mat-icon>
+      {{employee.name}}
+    </td>
   </ng-container>
 
   <!-- Age Column -->
@@ -49,4 +58,16 @@ employee-table.component.html
 
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+  <!-- Expanded Row Detail -->
+  <tr *ngFor="let employee of dataSource">
+    <td [attr.colspan]="displayedColumns.length" *ngIf="employee.expanded">
+      <div class="employee-detail-card">
+        <p><strong>Name: </strong>{{employee.name}}</p>
+        <p><strong>Age: </strong>{{employee.age}}</p>
+        <p><strong>Salary: </strong>{{employee.salary}}</p>
+      </div>
+    </td>
+  </tr>
 </table>
+
