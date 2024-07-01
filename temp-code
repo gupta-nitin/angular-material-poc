@@ -5,3 +5,14 @@
     <option *ngFor="let option of contractnames" [value]="option">{{ option }}</option>
   </datalist>
 </mat-form-field>
+
+
+ <mat-label>{{ field.label }}</mat-label>
+  <div [formGroup]="form">
+    <div *ngFor="let option of contractnames">
+      <label>
+        <input type="radio" [formControlName]="field.id" [value]="option" [required]="field.required">
+        {{ option }}
+      </label>
+    </div>
+  </div>
