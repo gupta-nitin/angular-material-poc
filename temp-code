@@ -7,12 +7,10 @@
 </mat-form-field>
 
 
- <mat-label>{{ field.label }}</mat-label>
-  <div [formGroup]="form">
-    <div *ngFor="let option of contractnames">
-      <label>
-        <input type="radio" [formControlName]="field.id" [value]="option" [required]="field.required">
-        {{ option }}
-      </label>
+<mat-form-field>
+  <mat-radio-group [formControlName]="field.id">
+    <div *ngFor="let option of contractnames" class="radio-button-container">
+      <mat-radio-button [value]="option">{{ option }}</mat-radio-button>
     </div>
-  </div>
+  </mat-radio-group>
+</mat-form-field>
