@@ -15,5 +15,5 @@
   </mat-radio-group>
 </mat-form-field>
 
-
+JSON.stringify(myObject, null, 2)
  const currentDate = new Date().toLocaleDateString('en-US');
