@@ -1,7 +1,7 @@
- <mat-label>{{ field.label }}</mat-label>
-  <input type="text" matInput [formControlName]="field.id" [matAutocomplete]="auto" [required]="field.required">
-  <mat-autocomplete #auto="matAutocomplete">
-    <mat-option *ngFor="let option of filteredOptions" [value]="option">
-      {{ option }}
-    </mat-option>
-  </mat-autocomplete>
+<mat-form-field>
+  <mat-label>{{ field.label }}</mat-label>
+  <input matInput [formControlName]="field.id" [required]="field.required" list="contractnames-list">
+  <datalist id="contractnames-list">
+    <option *ngFor="let option of contractnames" [value]="option">{{ option }}</option>
+  </datalist>
+</mat-form-field>
