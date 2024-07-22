@@ -1,1 +1,23 @@
-SELECT hcs.busCheckGroup, hcs.severity, ccv.dqGroupCheckDescription, ccv.versionNum, ccv.validFrom, SUM(hcs.totalRecordCount), SUM(hcs.recordCount) FROM HealthCheckSummary hcs JOIN ConditionalChecksVersioned ccv ON hcs.busCheckGroup = ccv.busCheckGroup AND hcs.ruleVerNum = ccv.versionNum WHERE hcs.execId = "---" GROUP BY hcs.busCheckGroup, hcs.severity, ccv.validFrom, ccv.dqGroupCheckDescription, ccv.versionNum
+SELECT 
+    hcs.v_bus_check_group,
+    hcs.v_severity,
+    ccv.v_dq_group_check_description,
+    MAX(ccv.d_valid_from) AS valid_from,
+    SUM(hcs.n_total_record_count) AS total_record_count,
+    SUM(hcs.n_record_count) AS record_count,
+    CASE 
+        WHEN COUNT(hcs.id) > 1 THEN 1 
+        ELSE 0 
+    END AS isGrouped
+FROM
+    [FINANCE_OPERATIONS_DB].execution_status.health_check_summary hcs
+JOIN
+    [FINANCE_CATALOG_DB].metadata_catalog.dq_conditional_checks_versioned ccv 
+    ON hcs.v_bus_check_group = ccv.v_bus_check_group 
+    AND hcs.n_rule_ver_num = ccv.n_version_num
+WHERE 
+    hcs.v_exec_id = 'local-1718199503411'
+GROUP BY 
+    hcs.v_bus_check_group, 
+    hcs.v_severity, 
+    ccv.v_dq_group_check_description
